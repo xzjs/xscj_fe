@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="add_btn_box">
-      <el-button type="primary" size="small" icon="el-icon-plus" @click="addClasDialog = true"></el-button>
+      <el-button type="primary" size="small" icon="el-icon-plus" @click="showDialog(0)"></el-button>
     </div>
 
     <el-table :data="clases">
@@ -26,14 +26,14 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog title="添加班级" :visible.sync="addClasDialog">
-      <el-form :model="form_add_teacher">
+    <el-dialog :title="title" :visible.sync="dialog">
+      <el-form :model="clas">
         <el-form-item label="姓名" label-width="60px">
           <el-input v-model="clas.name" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancel">取 消</el-button>
+        <el-button @click="closeDialog">取 消</el-button>
         <el-button type="primary" @click="add">确 定</el-button>
       </div>
     </el-dialog>
@@ -45,15 +45,16 @@
   import {mapState} from 'vuex';
 
   export default {
-    name: "admin",
+    name: "clas",
     data() {
       return {
         clases: [],
-        addClasDialog: false,
+        dialog: false,
         clas: {
           id: 0,
           name: ""
-        }
+        },
+        title: "添加班级"
       }
     },
     computed: mapState(['id']),
@@ -62,7 +63,7 @@
     },
     methods: {
       add() {
-        if(this.clas.id==0){
+        if (this.clas.id == 0) {
           axios.post('/clas', {
             name: this.clas.name
           })
@@ -73,32 +74,32 @@
                   message: '添加成功',
                   type: 'success'
                 });
-                this.cancel();
+                this.closeDialog();
               }
             })
             .catch(function (error) {
               console.log(error);
             });
-        }else{
+        } else {
           axios.put('/clas/' + this.clas.id, {name: this.clas.name})
-          .then(response => {
-            if (response.data.status) {
-              this.$message({
-                message: '修改成功成功',
-                type: 'success'
-              });
-              this.cancel();
-              this.getClases();
-            } else {
-              this.$message({
-                message: response.data.message,
-                type: 'error'
-              })
-            }
-          })
-          .catch(response => {
-            console.log(response);
-          })
+            .then(response => {
+              if (response.data.status) {
+                this.$message({
+                  message: '修改成功成功',
+                  type: 'success'
+                });
+                this.closeDialog();
+                this.getClases();
+              } else {
+                this.$message({
+                  message: response.data.message,
+                  type: 'error'
+                })
+              }
+            })
+            .catch(response => {
+              console.log(response);
+            })
         }
 
 
@@ -121,17 +122,18 @@
           id: row.id,
           name: row.name
         };
-        this.addClasDialog = true;
+        this.showDialog(row.id);
       },
-      resetForm(){
+      closeDialog() {
         this.clas = {
           id: 0,
           name: ""
-        }
+        };
+        this.dialog = false;
       },
-      cancel(){
-        this.resetForm();
-        this.addClasDialog=false;
+      showDialog(id) {
+        this.title = id == 0 ? "添加班级" : "修改班级";
+        this.dialog = true;
       }
     }
 
