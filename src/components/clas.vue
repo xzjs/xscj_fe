@@ -15,7 +15,7 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)">编辑
+            @click="edit(scope.$index, scope.row)">编辑
           </el-button>
           <el-button
             size="mini"
@@ -29,12 +29,12 @@
     <el-dialog title="添加班级" :visible.sync="addClasDialog">
       <el-form :model="form_add_teacher">
         <el-form-item label="姓名" label-width="60px">
-          <el-input v-model="form_add_teacher.name" auto-complete="off"></el-input>
+          <el-input v-model="clas.name" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="addTeacherDialog = false">取 消</el-button>
-        <el-button type="primary" @click="submit_add_teacher">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+        <el-button type="primary" @click="add">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -50,44 +50,57 @@
       return {
         clases: [],
         addClasDialog: false,
-        form_add_teacher: {
-          name: '',
+        clas: {
+          id: 0,
+          name: ""
         }
       }
     },
     computed: mapState(['id']),
     mounted() {
-      // // 动态设置背景图的高度为浏览器可视区域高度
-      //
-      // // 首先在Virtual DOM渲染数据时，设置下背景图的高度．
-      // this.clientHeight.height = `${document.documentElement.clientHeight}px`;
-      // // 然后监听window的resize事件．在浏览器窗口变化时再设置下背景图高度．
-      // const that = this;
-      // window.onresize = function temp() {
-      //   that.clientHeight = `${document.documentElement.clientHeight}px`;
-      // };
       this.getClases();
     },
     methods: {
-      submit_add_teacher() {
-        var self = this;
-        self.addTeacherDialog = false;
-        axios.post('/teachers', {
-          name: self.form_add_teacher.name
-        })
-          .then(function (response) {
-            self.getTeachers();
+      add() {
+        if(this.clas.id==0){
+          axios.post('/clas', {
+            name: this.clas.name
+          })
+            .then(response => {
+              this.getClases();
+              if (response.data.status) {
+                this.$message({
+                  message: '添加成功',
+                  type: 'success'
+                });
+                this.cancel();
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        }else{
+          axios.put('/clas/' + this.clas.id, {name: this.clas.name})
+          .then(response => {
             if (response.data.status) {
-              self.$message({
-                message: '添加成功',
+              this.$message({
+                message: '修改成功成功',
                 type: 'success'
               });
+              this.cancel();
+              this.getClases();
+            } else {
+              this.$message({
+                message: response.data.message,
+                type: 'error'
+              })
             }
+          })
+          .catch(response => {
             console.log(response);
           })
-          .catch(function (error) {
-            console.log(error);
-          });
+        }
+
 
       },
       getClases() {
@@ -102,6 +115,23 @@
           .catch(function (error) {
             console.log(error);
           });
+      },
+      edit(index, row) {
+        this.clas = {
+          id: row.id,
+          name: row.name
+        };
+        this.addClasDialog = true;
+      },
+      resetForm(){
+        this.clas = {
+          id: 0,
+          name: ""
+        }
+      },
+      cancel(){
+        this.resetForm();
+        this.addClasDialog=false;
       }
     }
 
