@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="add_btn_box">
-      <el-button type="primary" size="small" icon="el-icon-plus" @click="addTeacherDialog = true"></el-button>
+      <el-button type="primary" size="small" icon="el-icon-plus" @click="add"></el-button>
     </div>
     <el-table :data="teachersTable">
       <el-table-column
@@ -14,18 +14,18 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)">编辑
+            @click="Edit(scope.$index, scope.row)">编辑
           </el-button>
           <el-button
             size="mini"
             type="danger"
-            @click="handleDelete(scope.$index, scope.row)">删除
+            @click="Delete(scope.$index, scope.row)">删除
           </el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <el-dialog title="添加教师" :visible.sync="addTeacherDialog">
+    <el-dialog :title="dialogName" :visible.sync="addTeacherDialog" @close="dialog_close">
       <el-form :model="form_add_teacher">
         <el-form-item label="姓名" label-width="60px">
           <el-input v-model="form_add_teacher.name" auto-complete="off"></el-input>
@@ -48,10 +48,13 @@
     data(){
       return {
         teachersTable:[],
+        dialogName:'添加教师',
         addTeacherDialog:false,
         form_add_teacher:{
           name:'',
-        }
+          id:''
+        },
+        edit:false,
       }
     },
     mounted() {
@@ -67,43 +70,71 @@
       this.getTeachers();
     },
     methods:{
-      submit_add_teacher(){
-        var self = this;
-        self.addTeacherDialog = false;
-        axios.post('/teachers',{
-          name: self.form_add_teacher.name
-        })
-          .then(function (response) {
-            self.getTeachers();
-            if(response.data.status){
-              self.$message({
-                message: '添加成功',
-                type: 'success'
-              });
-            }
-            console.log(response);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-
-      },
       getTeachers(){
         var self=this;
-        console.log('lll')
+
         axios.get('/teachers')
           .then(function (response) {
             if(response.data.status){
               self.teachersTable = response.data.data;
             }
-            console.log(response);
-
           })
           .catch(function (error) {
             console.log(error);
           });
       },
-      toTeacher(){},
+      submit_add_teacher(){
+        var self = this;
+        if(self.edit){
+          axios.put('/teachers/'+self.form_add_teacher.id,{
+            name: self.form_add_teacher.name
+          })
+            .then(function (response) {
+              self.getTeachers();
+              if(response.data.status){
+                self.$message({
+                  message: '修改成功',
+                  type: 'success'
+                });
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        }else{
+          axios.post('/teachers',{
+            name: self.form_add_teacher.name
+          })
+            .then(function (response) {
+              self.getTeachers();
+              if(response.data.status){
+                self.$message({
+                  message: '添加成功',
+                  type: 'success'
+                });
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        }
+        self.addTeacherDialog = false;
+      },
+      add(){
+        this.addTeacherDialog = true;
+        this.dialogName = '添加教师';
+      },
+      Edit(index,row){
+        var self=this;
+        self.dialogName = '修改信息';
+        self.addTeacherDialog = true;
+        self.form_add_teacher.name = row.name;
+        self.form_add_teacher.id = row.id;
+        self.edit = true;
+      },
+      dialog_close(){
+        this.edit = false;
+      }
     }
 
   }

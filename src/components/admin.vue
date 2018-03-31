@@ -26,7 +26,7 @@
                 <i class="el-icon-menu"></i>
                 <span slot="title">班级管理</span>
               </el-menu-item>
-              <el-menu-item index="3">
+              <el-menu-item index="course">
                 <i class="el-icon-menu"></i>
                 <span slot="title">课程管理</span>
               </el-menu-item>
