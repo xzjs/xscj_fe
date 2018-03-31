@@ -86,7 +86,7 @@
   import axios from 'axios';
   import {mapState} from 'vuex';
     export default {
-      name: "student",
+      name: "admin",
       data(){
         const item = {
           date: '2016-05-02',

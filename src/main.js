@@ -9,12 +9,12 @@ import store from './store'
 import 'element-ui/lib/theme-chalk/index.css'
 
 import axios from 'axios'
-axios.defaults.baseURL = 'http://xscj.xzjs.love'
-Vue.prototype.axios = axios
+axios.defaults.baseURL = 'http://xscj.xzjs.love';
+Vue.prototype.axios = axios;
 
-Vue.use(ElementUI)
+Vue.use(ElementUI);
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
 new Vue({
