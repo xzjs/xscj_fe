@@ -43,12 +43,12 @@
 <script>
   import axios from 'axios';
   import {mapState} from 'vuex';
+  import {mapActions} from 'vuex';
 
   export default {
     name: "clas",
     data() {
       return {
-        clases: [],
         dialog: false,
         clas: {
           id: 0,
@@ -57,11 +57,14 @@
         title: "添加班级"
       }
     },
-    computed: mapState(['id']),
+    computed: mapState(['clases']),
     mounted() {
       this.getClases();
     },
     methods: {
+      ...mapActions([
+        'getClases',
+      ]),
       add() {
         if (this.clas.id == 0) {
           axios.post('/clas', {
@@ -104,19 +107,19 @@
 
 
       },
-      getClases() {
-        axios.get('/clas')
-          .then(response => {
-            if (response.data.status) {
-              this.clases = response.data.data;
-            } else {
-              alert(response.data.message);
-            }
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      },
+//      getClases() {
+//        axios.get('/clas')
+//          .then(response => {
+//            if (response.data.status) {
+//              this.clases = response.data.data;
+//            } else {
+//              alert(response.data.message);
+//            }
+//          })
+//          .catch(function (error) {
+//            console.log(error);
+//          });
+//      },
       edit(index, row) {
         this.clas = {
           id: row.id,

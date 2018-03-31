@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="add_btn_box">
-      <el-button type="primary" size="small" icon="el-icon-plus" @click="addDialog = true"></el-button>
+      <el-button type="primary" size="small" icon="el-icon-plus" @click="showDialog(0)"></el-button>
     </div>
 
     <el-table :data="students">
@@ -28,24 +28,24 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog title="添加学生" :visible.sync="addClasDialog">
+    <el-dialog :title="title" :visible.sync="dialog">
       <el-form :model="student">
         <el-form-item label="姓名" label-width="60px">
           <el-input v-model="student.name" auto-complete="off"></el-input>
         </el-form-item>
         <el-form-item label="班级" label-width="60px">
-          <el-select v-model="student.clas.id" placeholder="请选择">
+          <el-select v-model="student.clas_id" placeholder="请选择">
             <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+              v-for="item in clases"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancel">取 消</el-button>
+        <el-button @click="closeDialog">取 消</el-button>
         <el-button type="primary" @click="add">确 定</el-button>
       </div>
     </el-dialog>
@@ -55,63 +55,67 @@
 <script>
   import axios from 'axios';
   import {mapState} from 'vuex';
+  import {mapActions} from 'vuex';
 
   export default {
     name: "student",
     data() {
       return {
         students: [],
-        addDialog: false,
+        dialog: false,
         student: {
           id: 0,
           name: "",
-          clas:{
-            id:0,
-            name:""
-          }
+          clas_id: ''
         },
-        options:[]
+        title: ""
       }
     },
-    computed: mapState(['id']),
+    computed: mapState(['clases']),
     mounted() {
-      this.getClases();
+      this.getStudents();
     },
     methods: {
+      ...mapActions([
+        'getClases',
+      ]),
       add() {
-        if(this.student.id==0){
+        if (this.student.id == 0) {
           axios.post('/students', {
-            name: this.clas.name,
-            clas_id:0
+            name: this.student.name,
+            clas_id: this.student.clas_id
           })
             .then(response => {
-              this.getClases();
+              this.getStudents();
               if (response.data.status) {
                 this.$message({
                   message: '添加成功',
                   type: 'success'
                 });
-                this.cancel();
+                this.closeDialog();
+              } else {
+                console.log(response.data.message);
               }
             })
             .catch(function (error) {
               console.log(error);
             });
-        }else{
-          axios.put('/clas/' + this.clas.id, {name: this.clas.name})
+        } else {
+          axios.put('/students/' + this.student.id, {
+            name: this.student.name,
+            clas_id: this.student.clas_id
+          })
             .then(response => {
+              console.log(response);
               if (response.data.status) {
                 this.$message({
                   message: '修改成功成功',
                   type: 'success'
                 });
-                this.cancel();
-                this.getClases();
+                this.closeDialog();
+                this.getStudents();
               } else {
-                this.$message({
-                  message: response.data.message,
-                  type: 'error'
-                })
+                console.log(response.data.message);
               }
             })
             .catch(response => {
@@ -121,11 +125,11 @@
 
 
       },
-      getStudent() {
-        axios.get('/student')
+      getStudents() {
+        axios.get('/students')
           .then(response => {
             if (response.data.status) {
-              this.clases = response.data.data;
+              this.students = response.data.data;
             } else {
               alert(response.data.message);
             }
@@ -135,21 +139,25 @@
           });
       },
       edit(index, row) {
-        this.clas = {
+        this.student = {
           id: row.id,
-          name: row.name
+          name: row.name,
+          clas_id: parseInt(row.clas_id)
         };
-        this.addClasDialog = true;
+        this.showDialog(row.clas_id);
       },
-      resetForm(){
-        this.clas = {
+      closeDialog() {
+        this.student = {
           id: 0,
-          name: ""
-        }
+          name: "",
+          clas_id: ""
+        };
+        this.dialog = false;
       },
-      cancel(){
-        this.resetForm();
-        this.addClasDialog=false;
+      showDialog(id) {
+        this.title = id == 0 ? "添加学生" : "修改学生";
+        this.getClases();
+        this.dialog = true;
       }
     }
 
