@@ -18,7 +18,7 @@
               <el-submenu index="1">
                 <template slot="title"><i class="el-icon-message"></i>人员管理</template>
                 <el-menu-item-group>
-                  <el-menu-item index="1-1">教师</el-menu-item>
+                  <el-menu-item index="1-1" @click="toTeacher()">教师</el-menu-item>
                   <el-menu-item index="1-2">学生</el-menu-item>
                 </el-menu-item-group>
               </el-submenu>
@@ -114,7 +114,10 @@
             .catch(function (error) {
               console.log(error);
             });
-        }
+        },
+        toTeacher(){
+          this.$router.push({ path: '/teacher' });
+        },
       }
 
     }
@@ -162,10 +165,5 @@
 
   .el-aside {
     color: #333;
-  }
-  .add_btn_box{
-    line-height: 40px;
-    margin-bottom: 10px;
-    text-align: right;
   }
 </style>
