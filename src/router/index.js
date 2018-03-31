@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '@/components/login'
 import Admin from '@/components/admin'
+import Clas from '../components/clas';
 
 Vue.use(Router)
 
@@ -14,12 +15,13 @@ export default new Router({
     },
     {
       path: '/admin',
-      name: 'Admin',
-      component: Admin
-    },
-    {
-      path:'/clas',
-      name:
+      component: Admin,
+      children:[
+        {
+          path:'clas',
+          component:Clas
+        }
+      ]
     }
   ]
 })
