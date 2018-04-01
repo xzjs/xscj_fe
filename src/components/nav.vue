@@ -55,7 +55,7 @@
       getUserName() {
         switch (this.user.type) {
           case 0:
-            axios.get('/students/' + this.usr.id)
+            axios.get('/students/' + this.user.id)
               .then(response => {
                 if (response.data.status) {
                   this.name = response.data.data.name;

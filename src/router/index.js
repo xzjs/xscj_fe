@@ -10,6 +10,7 @@ import Grade from '../components/admin/grade';
 import _Teacher from '../components/teacher';
 import Nav from "../components/nav";
 import Index from '../components/admin/index'
+import _Student from '../components/student';
 
 Vue.use(Router)
 
@@ -57,6 +58,10 @@ export default new Router({
         {
           path: 'teacher',
           component: _Teacher
+        },
+        {
+          path:'student',
+          component:_Student
         }
       ]
     }]
