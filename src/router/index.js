@@ -1,11 +1,15 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '@/components/login'
-import Admin from '@/components/admin'
-import Clas from '../components/clas';
-import Teacher from '../components/teacher';
-import Course from '../components/course';
-import Student from '../components/student';
+import Admin from '@/components/admin/admin'
+import Clas from '../components/admin/clas';
+import Teacher from '../components/admin/teacher';
+import Course from '../components/admin/course';
+import Student from '../components/admin/student';
+import Grade from '../components/admin/grade';
+import _Teacher from '../components/teacher';
+import Nav from "../components/nav";
+import Index from '../components/admin/index'
 
 Vue.use(Router)
 
@@ -17,26 +21,43 @@ export default new Router({
       component: Login
     },
     {
-      path: '/admin',
-      component: Admin,
-      children:[
+      path: '/nav',
+      component: Nav,
+      children: [
         {
-          path:'clas',
-          component:Clas
+          path: 'admin',
+          component: Admin,
+          children: [
+            {
+              path: 'index',
+              component: Index
+            },
+            {
+              path: 'clas',
+              component: Clas
+            },
+            {
+              path: 'teacher',
+              component: Teacher
+            },
+            {
+              path: 'course',
+              component: Course
+            },
+            {
+              path: 'student',
+              component: Student
+            },
+            {
+              path: 'grade',
+              component: Grade
+            }
+          ]
         },
         {
-          path:'teacher',
-          component:Teacher
-        },
-        {
-          path:'course',
-          component:Course
-        },
-        {
-          path:'student',
-          component:Student
+          path: 'teacher',
+          component: _Teacher
         }
       ]
-    }
-  ]
+    }]
 })

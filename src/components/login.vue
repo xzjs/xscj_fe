@@ -26,11 +26,11 @@
 </template>
 
 <script>
-  import {mapMutations} from 'vuex'
+  import {mapState, mapActions, mapMutations} from 'vuex';
   import axios from 'axios'
 
   export default {
-    name: 'HelloWorld',
+    name: 'login',
     data() {
       return {
         loginForm: {
@@ -50,8 +50,9 @@
         }
       }
     },
+    computed: mapState(['user']),
     methods: {
-      ...mapMutations(['setId']),
+      ...mapMutations(['setUser']),
       login() {
         var self = this;
         var params = new URLSearchParams();
@@ -61,10 +62,21 @@
         axios.post('/login', params)
           .then(response => {
             var res = response.data
-            console.log(response.data);
             if (res.status) {
-              if (self.loginForm.type == 2) {
-                self.$router.push({path: '/admin'});
+              this.setUser({
+                id: this.loginForm.id,
+                type: this.loginForm.type
+              });
+              switch (self.loginForm.type) {
+                case 0:
+                  this.$router.push({path: '/nav/student'});
+                  break;
+                case 1:
+                  this.$router.push({path: '/nav/teacher'});
+                  break;
+                case 2:
+                  this.$router.push({path: '/nav/admin/index'});
+                  break;
               }
             } else {
               alert("登录失败");

@@ -4,14 +4,16 @@
       <el-button type="primary" size="small" icon="el-icon-plus" @click="showDialog(0)"></el-button>
     </div>
 
-    <el-table :data="students">
+    <el-table :data="grades">
       <el-table-column
         type="index"
         width="60">
       </el-table-column>
-      <el-table-column prop="name" label="名称">
+      <el-table-column prop="course.name" label="课程">
       </el-table-column>
-      <el-table-column prop="clas.name" label="班级">
+      <el-table-column prop="student.name" label="学生">
+      </el-table-column>
+      <el-table-column prop="score" label="成绩">
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
@@ -19,29 +21,34 @@
             size="mini"
             @click="edit(scope.$index, scope.row)">编辑
           </el-button>
-          <el-button
-            size="mini"
-            type="danger"
-            @click="handleDelete(scope.$index, scope.row)">删除
-          </el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <el-dialog :title="title" :visible.sync="dialog">
-      <el-form :model="student">
-        <el-form-item label="姓名" label-width="60px">
-          <el-input v-model="student.name" auto-complete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="班级" label-width="60px">
-          <el-select v-model="student.clas_id" placeholder="请选择">
+      <el-form :model="grade">
+        <el-form-item label="课程" label-width="60px">
+          <el-select v-model="grade.course_id" placeholder="请选择">
             <el-option
-              v-for="item in clases"
+              v-for="item in courses"
               :key="item.id"
               :label="item.name"
               :value="item.id">
             </el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="学生" label-width="60px">
+          <el-select v-model="grade.student_id" placeholder="请选择">
+            <el-option
+              v-for="item in students"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="成绩" label-width="60px">
+          <el-input v-model="grade.score" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -58,35 +65,38 @@
   import {mapActions} from 'vuex';
 
   export default {
-    name: "student",
+    name: "grade",
     data() {
       return {
-        students: [],
+        grades: [],
         dialog: false,
-        student: {
+        grade: {
           id: 0,
-          name: "",
-          clas_id: ''
+          course_id: "",
+          student_id: '',
+          score: ''
         },
         title: ""
       }
     },
-    computed: mapState(['clases']),
+    computed: mapState(['students', 'courses']),
     mounted() {
-      this.getStudents();
+      this.getGrades();
     },
     methods: {
       ...mapActions([
-        'getClases',
+        'getStudents',
+        'getCourses'
       ]),
       add() {
-        if (this.student.id == 0) {
-          axios.post('/students', {
-            name: this.student.name,
-            clas_id: this.student.clas_id
+        if (this.grade.id == 0) {
+          axios.post('/grades', {
+            course_id: this.grade.course_id,
+            student_id: this.grade.student_id,
+            score: this.grade.score
           })
             .then(response => {
-              this.getStudents();
+              this.getGrades();
               if (response.data.status) {
                 this.$message({
                   message: '添加成功',
@@ -101,19 +111,20 @@
               console.log(error);
             });
         } else {
-          axios.put('/students/' + this.student.id, {
-            name: this.student.name,
-            clas_id: this.student.clas_id
+          axios.put('/grades/' + this.grade.id, {
+            student_id: this.grade.student_id,
+            course_id: this.grade.course_id,
+            score: this.grade.score
           })
             .then(response => {
               console.log(response);
               if (response.data.status) {
                 this.$message({
-                  message: '修改成功成功',
+                  message: '修改成功',
                   type: 'success'
                 });
                 this.closeDialog();
-                this.getStudents();
+                this.getGrades();
               } else {
                 console.log(response.data.message);
               }
@@ -122,41 +133,44 @@
               console.log(response);
             })
         }
-
-
       },
-      getStudents() {
-        axios.get('/students')
+
+      getGrades() {
+        axios.get('/grades')
           .then(response => {
             if (response.data.status) {
-              this.students = response.data.data;
+              this.grades = response.data.data;
             } else {
-              alert(response.data.message);
+              console.log(response.data.message);
             }
           })
-          .catch(function (error) {
-            console.log(error);
-          });
+          .catch(response => {
+            console.log(response.data);
+          })
       },
+
       edit(index, row) {
-        this.student = {
+        this.grade = {
           id: row.id,
-          name: row.name,
-          clas_id: parseInt(row.clas_id)
+          student_id: parseInt(row.student_id),
+          course_id: parseInt(row.course_id),
+          score: row.score
         };
-        this.showDialog(row.clas_id);
+        this.showDialog(row.id);
       },
       closeDialog() {
-        this.student = {
+        this.grade = {
           id: 0,
-          name: "",
-          clas_id: ""
+          student_id: "",
+          course_id: "",
+          score: ""
         };
         this.dialog = false;
       },
       showDialog(id) {
-        this.title = id == 0 ? "添加学生" : "修改学生";
-        this.getClases();
+        this.title = id == 0 ? "添加成绩" : "修改成绩";
+        this.getCourses();
+        this.getStudents();
         this.dialog = true;
       }
     }
