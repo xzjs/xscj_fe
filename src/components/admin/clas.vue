@@ -20,7 +20,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="handleDelete(scope.$index, scope.row)">删除
+            @click="del(scope.$index, scope.row)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -137,6 +137,23 @@
       showDialog(id) {
         this.title = id == 0 ? "添加班级" : "修改班级";
         this.dialog = true;
+      },
+      del(index, row) {
+        axios.delete('/clas/' + row.id)
+          .then(response => {
+            if (response.data.status) {
+              this.$message({
+                message: '删除成功',
+                type: 'success'
+              });
+              this.getClases();
+            } else {
+              console.log(response.data.message);
+            }
+          })
+          .catch(response => {
+            console.log(response.data);
+          })
       }
     }
 

@@ -3,6 +3,7 @@
     <img src="../assets/01.jpg" alt="" class="bg_img">
     <el-form :model="loginForm" status-icon :rules="loginFormRules" ref="loginForm" label-width="80px"
              class="login_box">
+      <div style="text-align: center;font-size:22px;margin-bottom: 20px">学生成绩管理系统</div>
       <el-form-item label="用户名" prop="name">
         <el-input v-model="loginForm.id"></el-input>
       </el-form-item>

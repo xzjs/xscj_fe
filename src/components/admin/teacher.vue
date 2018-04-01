@@ -19,7 +19,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="Delete(scope.$index, scope.row)">删除
+            @click="del(scope.$index, scope.row)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -43,18 +43,19 @@
 
 <script>
   import axios from 'axios';
+
   export default {
     name: "teacher",
-    data(){
+    data() {
       return {
-        teachersTable:[],
-        dialogName:'添加教师',
-        addTeacherDialog:false,
-        form_add_teacher:{
-          name:'',
-          id:''
+        teachersTable: [],
+        dialogName: '添加教师',
+        addTeacherDialog: false,
+        form_add_teacher: {
+          name: '',
+          id: ''
         },
-        edit:false,
+        edit: false,
       }
     },
     mounted() {
@@ -69,13 +70,13 @@
       // };
       this.getTeachers();
     },
-    methods:{
-      getTeachers(){
-        var self=this;
+    methods: {
+      getTeachers() {
+        var self = this;
 
         axios.get('/teachers')
           .then(function (response) {
-            if(response.data.status){
+            if (response.data.status) {
               self.teachersTable = response.data.data;
             }
           })
@@ -83,15 +84,15 @@
             console.log(error);
           });
       },
-      submit_add_teacher(){
+      submit_add_teacher() {
         var self = this;
-        if(self.edit){
-          axios.put('/teachers/'+self.form_add_teacher.id,{
+        if (self.edit) {
+          axios.put('/teachers/' + self.form_add_teacher.id, {
             name: self.form_add_teacher.name
           })
             .then(function (response) {
               self.getTeachers();
-              if(response.data.status){
+              if (response.data.status) {
                 self.$message({
                   message: '修改成功',
                   type: 'success'
@@ -101,13 +102,13 @@
             .catch(function (error) {
               console.log(error);
             });
-        }else{
-          axios.post('/teachers',{
+        } else {
+          axios.post('/teachers', {
             name: self.form_add_teacher.name
           })
             .then(function (response) {
               self.getTeachers();
-              if(response.data.status){
+              if (response.data.status) {
                 self.$message({
                   message: '添加成功',
                   type: 'success'
@@ -120,20 +121,37 @@
         }
         self.addTeacherDialog = false;
       },
-      add(){
+      add() {
         this.addTeacherDialog = true;
         this.dialogName = '添加教师';
       },
-      Edit(index,row){
-        var self=this;
+      Edit(index, row) {
+        var self = this;
         self.dialogName = '修改信息';
         self.addTeacherDialog = true;
         self.form_add_teacher.name = row.name;
         self.form_add_teacher.id = row.id;
         self.edit = true;
       },
-      dialog_close(){
+      dialog_close() {
         this.edit = false;
+      },
+      del(index, row) {
+        axios.delete('/teachers/' + row.id)
+          .then(response => {
+            if (response.data.status) {
+              this.$message({
+                message: '删除成功',
+                type: 'success'
+              });
+              this.getTeachers();
+            } else {
+              console.log(response.data.message);
+            }
+          })
+          .catch(response => {
+            console.log(response.data);
+          })
       }
     }
 
@@ -142,7 +160,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  .add_btn_box{
+  .add_btn_box {
     line-height: 40px;
     margin-bottom: 10px;
     text-align: right;

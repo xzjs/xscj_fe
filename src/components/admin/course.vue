@@ -21,7 +21,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="handleDelete(scope.$index, scope.row)">删除
+            @click="del(scope.$index, scope.row)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -70,15 +70,6 @@
       }
     },
     mounted() {
-      // // 动态设置背景图的高度为浏览器可视区域高度
-      //
-      // // 首先在Virtual DOM渲染数据时，设置下背景图的高度．
-      // this.clientHeight.height = `${document.documentElement.clientHeight}px`;
-      // // 然后监听window的resize事件．在浏览器窗口变化时再设置下背景图高度．
-      // const that = this;
-      // window.onresize = function temp() {
-      //   that.clientHeight = `${document.documentElement.clientHeight}px`;
-      // };
       this.getCourses();
       this.getTeachers();
     },
@@ -134,6 +125,23 @@
             console.log(error);
           });
       },
+      del(index, row) {
+        axios.delete('/courses/' + row.id)
+          .then(response => {
+            if (response.data.status) {
+              this.$message({
+                message: '删除成功',
+                type: 'success'
+              });
+              this.getCourses();
+            } else {
+              console.log(response.data.message);
+            }
+          })
+          .catch(response => {
+            console.log(response.data);
+          })
+      }
     }
 
   }

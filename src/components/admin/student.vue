@@ -22,7 +22,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="handleDelete(scope.$index, scope.row)">删除
+            @click="del(scope.$index, scope.row)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -54,7 +54,7 @@
 
 <script>
   import axios from 'axios';
-  import {mapState,mapActions} from 'vuex';
+  import {mapState, mapActions} from 'vuex';
 
   export default {
     name: "student",
@@ -69,7 +69,7 @@
         title: ""
       }
     },
-    computed: mapState(['clases','students']),
+    computed: mapState(['clases', 'students']),
     mounted() {
       this.getStudents();
     },
@@ -108,7 +108,7 @@
               console.log(response);
               if (response.data.status) {
                 this.$message({
-                  message: '修改成功成功',
+                  message: '修改成功',
                   type: 'success'
                 });
                 this.closeDialog();
@@ -121,22 +121,7 @@
               console.log(response);
             })
         }
-
-
       },
-//      getStudents() {
-//        axios.get('/students')
-//          .then(response => {
-//            if (response.data.status) {
-//              this.students = response.data.data;
-//            } else {
-//              alert(response.data.message);
-//            }
-//          })
-//          .catch(function (error) {
-//            console.log(error);
-//          });
-//      },
       edit(index, row) {
         this.student = {
           id: row.id,
@@ -157,6 +142,23 @@
         this.title = id == 0 ? "添加学生" : "修改学生";
         this.getClases();
         this.dialog = true;
+      },
+      del(index, row) {
+        axios.delete('/students/' + row.id)
+          .then(response => {
+            if (response.data.status) {
+              this.$message({
+                message: '删除成功',
+                type: 'success'
+              });
+              this.getStudents();
+            } else {
+              console.log(response.data.message);
+            }
+          })
+          .catch(response => {
+            console.log(response.data);
+          })
       }
     }
 
